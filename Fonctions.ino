@@ -59,7 +59,7 @@ void draw(void) {
       u8g.undoScale();
       break;
     case 2:  // affichage du temps restant
-      if (command_start) {
+      if (cycle_start) {
         u8g.setScale2x2(); 
         u8g.drawStr( 9, 10, "fin dans");
         u8g.setPrintPos(15,20);
@@ -89,7 +89,7 @@ void reinit() {
   Chauffe.stop();
 
   current_etape = 0;
-  command_start = 0;
+  cycle_start = 0;
 
   reinit_cycle();
 }

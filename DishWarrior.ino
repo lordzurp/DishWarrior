@@ -42,7 +42,7 @@
   String etape_desc_1 = " Let's go";
   String etape_desc_2 = " washing !";
 
-  bool command_start = 0;
+  bool cycle_start = 0;
 
   int page = 1; // la page à afficher, on swipe toutes les 5 secondes
 
@@ -149,19 +149,19 @@ void loop() {
     push_time = current_time - push_start_time;
     if (push_time > 50) {
       start = 0;
-      if ( (push_time > 100 && push_time < 1000) && command_start) {
+      if ( (push_time > 100 && push_time < 1000) && cycle_start) {
         reinit();
         etape_desc_1 = "cycle";
         etape_desc_2 = "annule !";
       }
-      if ((push_time > 1000 && push_time < 5000) && !command_start) {
-        command_start = 1;
+      if ((push_time > 1000 && push_time < 5000) && !cycle_start) {
+        cycle_start = 1;
         current_etape = 0;
       }
     }
   }
 
-  if (command_start) {
+  if (cycle_start) {
     switch (current_etape) {
       case 0:
         reinit_cycle();
@@ -377,7 +377,7 @@ void loop() {
   if (current_time - previous_pageswipe_time >= 5000) {
     previous_pageswipe_time = millis();
     page++;
-    if (!command_start) {
+    if (!cycle_start) {
       if (page >= 3) page = 1;
     }
     else {
