@@ -1,6 +1,3 @@
-//#include <U8glib.h>
-
-
 // Dish Warrior
 //
 // lordzurp - 01-2019
@@ -28,7 +25,7 @@
   sortie M_cycle    (10, "Moteur cycle");           // moteur cycle
   sortie Chauffe    (11, "Resistance de chauffe");  // résistance chauffe
   sortie M_vidange  (12, "Moteur vidange");         // moteur vidange
-  sortie blink_LED  (13, "heartbeat_LED");          // LED intégrée
+  sortie blink_LED  (LED_BUILTIN, "heartbeat_LED"); // LED intégrée
 // Etapes
   etape vidange             (0,10,0,    "vidange",      "de l'eau");
   etape remplissage         (10,10,0,   "remplissage",  "de la cuve");
@@ -48,6 +45,8 @@
   bool command_start = 0;
 
   int page = 1; // la page à afficher, on swipe toutes les 5 secondes
+
+  byte varCompteur = 0; // La variable compteur
 
 // time variables
   byte seconde, minute, heure;
@@ -120,6 +119,14 @@ void setup() {
   Wire.begin();
   //Serial.begin(9600);
 
+  cli(); // Désactive l'interruption globale
+  TCCR1A = 0;
+  TCCR1B = 0b00001100;
+  TIMSK1 = 0b00000010;
+  TCNT1 = 0;  
+  OCR1A = 31250; 
+  sei(); // Active l'interruption globale
+  
   // init carte relais
   reinit();
 }
@@ -367,11 +374,6 @@ void loop() {
     previous_draw_time = millis();
   }
 
-  if (current_time - previous_heartbeat_time >= 500) {
-    previous_heartbeat_time = millis();
-    blink_LED.switche();
-  }
-
   if (current_time - previous_pageswipe_time >= 5000) {
     previous_pageswipe_time = millis();
     page++;
@@ -382,7 +384,7 @@ void loop() {
       if (page >= 4) page = 1;      
     }
   }
-
+  
 }
 
 

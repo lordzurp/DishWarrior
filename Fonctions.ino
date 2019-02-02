@@ -71,12 +71,10 @@ void draw(void) {
         u8g.drawBitmapP( 44, 20, 5, 42, dish_bitmap);
       break;
     case 3:  // Afichage des icones
-      if (command_start) {
         if (blink_LED.state)
           u8g.drawBitmapP( 5, 20, 8, 44, morty);
         else
           u8g.drawBitmapP( 60, 20, 8, 44, rick);
-      }
       break;
     default:
       break;
@@ -102,4 +100,9 @@ void reinit_cycle() {
   cycle_lavage.reset();
   cycle_rincage_court.reset();
   cycle_rincage_long.reset();
+}
+
+// Routine d'interruption, heartbeat 1Hz
+ISR(TIMER1_COMPA_vect) {
+  blink_LED.switche();
 }

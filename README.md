@@ -19,6 +19,6 @@
 
 #### future v1.0 - 02/2019
 
-##### New :
+##### New : gestion des heures creuses
 ##### Bugfix :
 ##### Misc :
