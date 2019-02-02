@@ -8,3 +8,17 @@
 [release]: https://github.com/lordzurp/DishWarrior/releases
 [license]: https://raw.githubusercontent.com/lordzurp/DishWarrior/master/LICENSE
 [arduino]: http://arduino.cc
+
+
+
+### Historique
+
+#### v0.9 - 01/2019
+
+##### Initial release
+
+#### future v1.0 - 02/2019
+
+##### New :
+##### Bugfix :
+##### Misc :
