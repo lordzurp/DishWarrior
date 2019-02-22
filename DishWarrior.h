@@ -13,7 +13,7 @@ class entree {
     bool state;
     String description;
   private:
-  	int input_pin;
+    int input_pin;
 };
 
 class sortie {
@@ -25,7 +25,7 @@ class sortie {
     bool state;
     String description;
   private:
-  	int output_pin;
+    int output_pin;
 };
 
 class etape {

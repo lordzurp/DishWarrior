@@ -3,6 +3,11 @@ byte bcdToDec(byte val) {
   return( (val/16*10) + (val%16));
 }
 
+// heartbeat 1Hz
+void heartbeat() {
+  blink_LED.switche();
+}
+
 void lire_date() {
   // Réception de l'heure et de la date
   Wire.beginTransmission(ADRESSE_I2C_RTC);
@@ -25,7 +30,13 @@ void u8g_prepare(void) {
 void draw(void) {
   u8g_prepare();
 
-  // affichage de l'heure 
+  if (push_confirm) {
+    u8g.setScale2x2(); 
+    u8g.drawStr(24, 0, "OK");
+    u8g.undoScale();
+  }
+  else {
+    // affichage de l'heure 
     u8g.setScale2x2(); 
     u8g.setPrintPos(15, 0);
     if (heure<10) {
@@ -42,6 +53,7 @@ void draw(void) {
     }
     u8g.print(minute);
     u8g.undoScale();
+  }
 
   if (cycle_run) {
     switch (page) {
@@ -75,31 +87,31 @@ void draw(void) {
     switch (page_menu) {
       case 1:
         u8g.setScale2x2(); 
-        u8g.drawStr(0, 10, "  départ  ");
+        u8g.drawStr(0, 10, "  depart  ");
         u8g.drawStr(0, 20, " immediat ");
         u8g.undoScale();
         break;
       case 2:
         u8g.setScale2x2(); 
-        u8g.drawStr(0, 10, "  départ  ");
-        u8g.drawStr(0, 20, "  à  15h  ");
+        u8g.drawStr(0, 10, "  depart  ");
+        u8g.drawStr(0, 20, "  a  15h  ");
         u8g.undoScale();
         break;
       case 3:
         u8g.setScale2x2(); 
-        u8g.drawStr(0, 10, "  départ  ");
-        u8g.drawStr(0, 20, "  à 20h30 ");
+        u8g.drawStr(0, 10, "  depart  ");
+        u8g.drawStr(0, 20, "  a 20h30 ");
         u8g.undoScale();
         break;
       case 4:
         u8g.setScale2x2(); 
-        u8g.drawStr(0, 10, "  départ  ");
-        u8g.drawStr(0, 20, "  à 02h30 ");
+        u8g.drawStr(0, 10, "  depart  ");
+        u8g.drawStr(0, 20, "  a 02h30 ");
         u8g.undoScale();
         break;
       case 5:
         u8g.setScale2x2(); 
-        u8g.drawStr(0, 10, " réglages ");
+        u8g.drawStr(0, 10, " reglages ");
         u8g.drawStr(0, 20, " du cycle ");
         u8g.undoScale();
         break;
@@ -124,7 +136,7 @@ void draw(void) {
       case 3:
         u8g.setScale2x2(); 
         u8g.drawStr(0, 10, "  lavage  ");
-        u8g.drawStr(0, 20, "   éco    ");
+        u8g.drawStr(0, 20, "   eco    ");
         u8g.undoScale();
         break;
       case 4:
@@ -141,6 +153,75 @@ void draw(void) {
         break;
       default:
         page_menu = 1;
+    }
+  }
+  else if (depart_15) {
+    switch (page) {
+      case 1:  // affichage de l'étape courante
+        u8g.setScale2x2(); 
+        u8g.setPrintPos(0, 10);
+        u8g.print(" Let's go");
+        u8g.setPrintPos(0, 20);
+        u8g.print(" washing !");
+        u8g.undoScale();
+        break;
+      case 2:  // affichage du temps restant
+        u8g.setScale2x2(); 
+        u8g.drawStr(0, 10, "  depart  ");
+        u8g.drawStr(0, 20, "  a  15h  ");
+        u8g.undoScale();
+        break;
+      case 3:  // Afichage des icones
+        u8g.drawBitmapP( 44, 20, 5, 42, dish_bitmap);
+        break;
+      default:
+        page = 1;
+    }
+  }
+  else if (depart_20) {
+    switch (page) {
+      case 1:  // affichage de l'étape courante
+        u8g.setScale2x2(); 
+        u8g.setPrintPos(0, 10);
+        u8g.print(" Let's go");
+        u8g.setPrintPos(0, 20);
+        u8g.print(" washing !");
+        u8g.undoScale();
+        break;
+      case 2:  // affichage du temps restant
+        u8g.setScale2x2(); 
+        u8g.drawStr(0, 10, " depart   ");
+        u8g.drawStr(0, 20, " a  20h30 ");
+        u8g.undoScale();
+        break;
+      case 3:  // Afichage des icones
+        u8g.drawBitmapP( 44, 20, 5, 42, dish_bitmap);
+        break;
+      default:
+        page = 1;
+    }
+  }
+  else if (depart_02) {
+    switch (page) {
+      case 1:  // affichage de l'étape courante
+        u8g.setScale2x2(); 
+        u8g.setPrintPos(0, 10);
+        u8g.print(" Let's go");
+        u8g.setPrintPos(0, 20);
+        u8g.print(" washing !");
+        u8g.undoScale();
+        break;
+      case 2:  // affichage du temps restant
+        u8g.setScale2x2(); 
+        u8g.drawStr(0, 10, " depart   ");
+        u8g.drawStr(0, 20, " a  02h30 ");
+        u8g.undoScale();
+        break;
+      case 3:  // Afichage des icones
+        u8g.drawBitmapP( 44, 20, 5, 42, dish_bitmap);
+        break;
+      default:
+        page = 1;
     }
   }
   else if (cycle_termine) {
@@ -163,7 +244,7 @@ void draw(void) {
       case 1:
         u8g.setScale2x2(); 
         u8g.drawStr(0, 10, " Cycle    ");
-        u8g.drawStr(0, 20, " annulé ! ");
+        u8g.drawStr(0, 20, " annule ! ");
         u8g.undoScale();
         break;
       case 2:
@@ -200,7 +281,10 @@ void draw(void) {
         u8g.undoScale();
         break;
       case 2:
-        u8g.drawBitmapP( 10, 20, 12, 42, insert_coin);
+        if (blink_LED.state)
+          u8g.drawBitmapP( 10, 20, 12, 42, insert_coin_1);
+        else
+          u8g.drawBitmapP( 10, 20, 12, 42, insert_coin_3);
         break;
       default:
         page = 1;
@@ -211,17 +295,12 @@ void draw(void) {
 //        u8g.drawBitmapP( 44, 20, 5, 42, dish_bitmap);
 
 void reinit() {
-  M_vidange.stop();
-  EV_eau.stop();
-  M_cuve.stop();
-  M_cycle.stop();
-  Chauffe.stop();
-
   current_etape = 0;
   cycle_run = 0;
   cycle_pause = 0;
 
   reinit_cycle();
+  stop_all();
 }
 
 void reinit_cycle() {
@@ -232,7 +311,10 @@ void reinit_cycle() {
   cycle_rincage_long.reset();
 }
 
-// Routine d'interruption, heartbeat 1Hz
-ISR(TIMER1_COMPA_vect) {
-  blink_LED.switche();
+void stop_all() {
+  M_vidange.stop();
+  EV_eau.stop();
+  M_cuve.stop();
+  M_cycle.stop();
+  Chauffe.stop();
 }
