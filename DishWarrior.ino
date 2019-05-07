@@ -1,6 +1,12 @@
+#include <Chrono.h>
+#include <LightChrono.h>
+
 #include <MsTimer2.h>
 
 #include <U8glib.h>
+
+#include <avr/wdt.h>
+
 // Dish Warrior
 //
 // lordzurp - 01-2019
@@ -27,11 +33,16 @@
   sortie blink_LED  (LED_BUILTIN, "heartbeat_LED"); // LED intégrée
 // Etapes
   etape vidange             (0,10,0,     "vidange",      "de l'eau");
-  etape remplissage         (10,10,0,    "remplissage",  "de la cuve");
+  etape remplissage         (0,10,0,    "remplissage",  "de la cuve");
   etape cycle_lavage        (10,0,60,    "lavage",       "en cours");
   etape cycle_rincage_court (120,0,15,   "rincage",      "court");
   etape cycle_rincage_long  (10,0,15,    "rincage",      "long");
   etape regen               (10,0,1,     "regeneration", "en cours");
+
+// Chronos
+  Chrono page_change(Chrono::SECONDS);
+  Chrono menu_timeout(Chrono::SECONDS);
+  Chrono screen_refresh(Chrono::MILLIS);
 
 // Variables
   long previous_draw_time = 0;
@@ -173,9 +184,13 @@ void setup() {
 
   // init carte relais
   reinit();
+//  wdt_enable(WDTO_8S);
 }
 
 void loop() {
+
+//wdt_reset();
+
   // on init le timestamp initial de la boucle
   current_time = millis();
 
@@ -332,7 +347,6 @@ if (push_long) {
         debut_cycle = millis();
         current_etape++;
         page = 1;
-        previous_pageswipe_time = previous_pageswipe_time + 6000;
         break;
       case 1: // on commence par vidanger le LV
         vidange.run();
@@ -346,6 +360,7 @@ if (push_long) {
         }
         break;
       case 2: // on remplit le LV
+      //delay(3000);
         remplissage.run();
         if (remplissage.running) {
           if (pressostat.state) {
@@ -526,7 +541,7 @@ if (push_long) {
     restant_cycle = duree_cycle - ((current_time - debut_cycle) / 1000 / 60);
   }
 
-  if (current_time - previous_draw_time >= 100) {
+  if (screen_refresh.hasPassed(100,1)) {
     lire_date();
     u8g.firstPage();
     do {
@@ -535,12 +550,16 @@ if (push_long) {
     previous_draw_time = millis();
   }
 
-  if (current_time - previous_pageswipe_time >= 5000) {
+/*  if (current_time - previous_pageswipe_time >= 5000) {
     previous_pageswipe_time = millis();
     page++;
-  }
+  }*/
   
-  if ( (current_time - in_menu) >= 10000){
+  if (page_change.hasPassed(5,1)) {
+    page++;
+  }
+
+  if (menu_timeout.hasPassed(15,1)) {
     menu_1 = 0;
     menu_2 = 0;
     page_menu = 1;
